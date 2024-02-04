@@ -1,0 +1,21 @@
+[{
+	"name": "Tahereh",
+	"day": "Monday",
+	"time": "10:00am - 11:00am"
+}, {
+	"name": "Dr. Labrinidis",
+	"day": "Tuesday",
+	"time": "2:15pm - 3:00pm"
+}, {
+	"name": "Tahereh",
+	"day": "Wednesday",
+	"time": "10:00am - 11:00am"
+}, {
+	"name": "Dr. Labrinidis",
+	"day": "Thursday",
+	"time": "2:15pm - 3:00pm"
+}, {
+	"name": "Tahereh",
+	"day": "Monday",
+	"time": "12:30pm - 1:30pm"
+}]
