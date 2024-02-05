@@ -26,7 +26,7 @@ class Bike(object):
     how many bikes are currently available over all stations
     in the entire City Bike Share network.
     """
-
+    # Method #1: Total bikes available
     def total_bikes(self):
         # return the total number of bikes available
 
@@ -38,7 +38,7 @@ class Bike(object):
         print(f"{total_bikes_num = }")
         return total_bikes_num
 
-
+    # Method #2: Total docks available
     def total_docks(self):
         response = requests.get(self.baseURL + self.station_status)
         data = response.json()
@@ -46,7 +46,7 @@ class Bike(object):
         return total_docks
         # return the total number of docks available
 
-
+    # Method #3: Percentage of docks available in a specific station
     def percent_avail(self, station_id):
         # return the percentage of available docks
         response = requests.get(self.baseURL + self.station_status)
@@ -59,6 +59,7 @@ class Bike(object):
                     return f"{int(percent)}%"
         return ""
 
+    # Method  # 4: Names of three closest City Bike Share stations.
     def closest_stations(self, latitude, longitude):
         # return the stations closest to the given coordinates
         response = requests.get(self.baseURL + self.station_info)
@@ -73,7 +74,7 @@ class Bike(object):
                   station_id in closest_stations}
         return result
 
-
+    # Method  # 5: Name of the closest City Bike Share station with available bikes
     def closest_bike(self, latitude, longitude):
         # return the station with available bikes closest to the given coordinates
         response = requests.get(self.baseURL + self.station_info)
@@ -87,55 +88,38 @@ class Bike(object):
                     dist = self.distance(latitude, longitude, station['lat'], station['lon'])
                     distances[station['station_id']] = dist
         closest_station_id = min(distances, key=distances.get)
-        closest_station_name = next(station['name'] for station in station_data['data']['stations'] if
-                                    station['station_id'] == closest_station_id)
-        return {closest_station_id: closest_station_name}
+        # closest_station_name = next(station['name'] for station in station_data['data']['stations'] if
+        #                             station['station_id'] == closest_station_id)    # one-line style
+        for station in station_data['data']['stations']:
+            if station['station_id'] == closest_station_id:
+                closest_station_name = station['name']
 
 
+
+        tmp = {closest_station_id: closest_station_name}
+        return tmp
+
+    # Method  # 6: The number of bikes available at a bike station
     def station_bike_avail(self, latitude, longitude):
         # return the station id and available bikes that correspond to the station with the given coordinates
         # 載入車站信息
         response = requests.get(self.baseURL + self.station_info)
         station_data = response.json()
-        # 載入車站狀態
         response = requests.get(self.baseURL + self.station_status)
         status_data = response.json()
-        # 查找最接近的車站
-        result = {int(station_data['station_id']): status_data['bikes_available']}
-        closest_station = None
-        min_distance = float('inf')
         for station in station_data['data']['stations']:
-            dist = self.distance(latitude, longitude, station['lat'], station['lon'])
-            if dist < min_distance:
-                min_distance = dist
-                closest_station = station['station_id']
-                # for status in status_data['data']['stations']:
-                # if station['station_id'] == closest_station:
-                return result
-        return result
+            if station['lat'] == latitude and station['lon'] == longitude:
+                station_id = station['station_id']
 
+                # Now, find the status of this station by its ID in the status data
+                for status in status_data['data']['stations']:
+                    if status['station_id'] == station_id:
+                        # Return the station ID and available bikes count
+                        return {station_id: status['num_bikes_available']}
 
+                # If no station matches the exact coordinates, return an empty dictionary
+        return {}
 
-        # if closest_station is None:
-        #     return "this station does not exist."
-        #     # 查找並返回最接近車站的自行車數量
-        # for status in status_data['data']['stations']:
-        #     if status['station_id'] == closest_station:
-        #         return {closest_station: status['num_bikes_available']}
-
-        # for station in station_data['data']['stations']:
-        #     # check if station has corresponding latitude and longitude
-        #     if station['lat']
-        #     # print(station['lat'])
-        #     # print(latitude)
-        #     if station['lat'] == latitude:
-        #         # and station['lon'] == longitude:# datatype
-        #         station_id = int(station['station_id'])  # change the datatype to int
-        #         bikes_available = next(status['num_bikes_available'] for status in status_data['data']['stations'] if
-        #                                int(status['station_id']) == station_id)
-        #         return {station_id: bikes_available}
-        # # return {}
-        
 
     def distance(self, lat1, lon1, lat2, lon2):
         p = 0.017453292519943295
@@ -160,7 +144,7 @@ if __name__ == '__main__':
     print()
 
     print('-----------------percent_avail()------------------')
-    p_avail = instance.percent_avail(342875) # replace with station ID
+    p_avail = instance.percent_avail(342885) # replace with station ID
     print(type(p_avail))
     print(p_avail)
     print()
@@ -172,12 +156,12 @@ if __name__ == '__main__':
     print()
 
     print('-----------------closest_bike()-------------------')
-    c_bike = instance.closest_bike(40.478145372014666, -79.95573878288269) # replace with latitude and longitude
+    c_bike = instance.closest_bike(40.444618, -79.954707) # replace with latitude and longitude
     print(type(c_bike))
     print(c_bike)
     print()
 
     print('---------------station_bike_avail()---------------')
-    s_bike_avail = instance.station_bike_avail(4, 7) # replace with exact latitude and longitude of station
+    s_bike_avail = instance.station_bike_avail(40.440193, -79.995084) # replace with exact latitude and longitude of station
     print(type(s_bike_avail))
     print(s_bike_avail)
