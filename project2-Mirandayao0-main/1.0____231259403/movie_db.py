@@ -125,26 +125,6 @@ class Movie_db(object):
         return all_rows
 
     #  Top 10 Movies by Largest Cast
-    # def q6(self):
-        # query='''
-        # SELECT m.title, COUNT(c.aid) AS number_of_cast_members
-        #     FROM Movies m
-        #     JOIN Cast c ON m.mid = c.mid
-        #     GROUP BY m.title
-        #     HAVING COUNT(c.aid) >= (
-        #     SELECT COUNT(c2.aid)
-        #     FROM Cast c2
-        #     JOIN Movies m2 ON c2.mid = m2.mid
-        #     GROUP BY c2.mid
-        #     ORDER BY COUNT(c2.aid) DESC
-        #     LIMIT 1 OFFSET 9
-        #     )
-        #     ORDER BY COUNT(c.aid) DESC, m.title;
-        #
-        # '''
-        # self.cur.execute(query)
-        # all_rows = self.cur.fetchall()
-        # return all_rows
     def q6(self):
         query = '''
          SELECT m.title, COUNT(*) AS number_of_cast_members
@@ -153,7 +133,7 @@ class Movie_db(object):
             GROUP BY m.mid
             ORDER BY number_of_cast_members DESC, m.title
             LIMIT 10;
-
+   
         '''
         self.cur.execute(query)
         all_rows = self.cur.fetchall()
@@ -237,29 +217,29 @@ class Movie_db(object):
 
     def q11(self):
         query = '''
-            SELECT DISTINCT a2.fname, a2.lname
-                FROM Actors a1
-                JOIN Cast c1 ON a1.aid = c1.aid
-                JOIN Movies m1 ON c1.mid = m1.mid
-                JOIN Cast c2 ON m1.mid = c2.mid
-                JOIN Actors a2 ON c2.aid = a2.aid
-                WHERE a1.aid IN (
-                SELECT c3.aid
-                FROM Cast c3
-                JOIN Movies m2 ON c3.mid = m2.mid
-                JOIN Cast c4 ON m2.mid = c4.mid
-                WHERE c4.aid = (SELECT aid FROM Actors WHERE fname = 'Kevin' AND lname = 'Bacon')
-                ) AND a2.aid NOT IN (
-                SELECT aid FROM Actors WHERE fname = 'Kevin' AND lname = 'Bacon'
-                ) AND a2.aid NOT IN (
-                SELECT c5.aid
-                FROM Cast c5
-                JOIN Movies m3 ON c5.mid = m3.mid
-                JOIN Cast c6 ON m3.mid = c6.mid
-                WHERE c6.aid = (SELECT aid FROM Actors WHERE fname = 'Kevin' AND lname = 'Bacon')
-                )
-                ORDER BY a2.lname, a2.fname;
-
+        WITH Bacon1 AS (
+            SELECT c.aid
+            FROM Cast c
+            JOIN Movies m ON c.mid = m.mid
+            WHERE c.mid IN (
+                SELECT mid
+                FROM Cast
+                WHERE aid = '1011' 
+            )
+        ), Bacon2 AS (
+            SELECT DISTINCT c.aid
+            FROM Cast c
+            JOIN Bacon1 ON c.mid IN (
+                SELECT mid
+                FROM Cast
+                WHERE aid IN (SELECT aid FROM Bacon1)
+            )
+            WHERE c.aid NOT IN ('1011') AND c.aid NOT IN (SELECT aid FROM Bacon1)
+        )
+        SELECT a.fname, a.lname
+        FROM Actors a
+        JOIN Bacon2 ON a.aid = Bacon2.aid
+        ORDER BY a.lname, a.fname;
   
         '''
         self.cur.execute(query)
@@ -283,42 +263,42 @@ class Movie_db(object):
 
 if __name__ == "__main__":
     task = Movie_db("cs1656-public.db")
-    # rows = task.q0()
-    # print(rows)
-    # print()
-    # rows = task.q1()
-    # print(rows)
-    # print()
-    # rows = task.q2()
-    # print(rows)
-    # print()
-    # rows = task.q3()
-    # print(rows)
-    # print()
-    # rows = task.q4()
-    # print(rows)
-    # print()
-    # rows = task.q5()
-    # print(rows)
-    # print()
-    # rows = task.q6()
-    # print(rows)
-    # print()
-    # rows = task.q7()
-    # print(rows)
-    # print()
-    # rows = task.q8()
-    # print(rows)
-    # print()
-    # rows = task.q9()
-    # print(rows)
-    # print()
-    # rows = task.q10()
-    # print(rows)
-    # print()
+    rows = task.q0()
+    print(rows)
+    print()
+    rows = task.q1()
+    print(rows)
+    print()
+    rows = task.q2()
+    print(rows)
+    print()
+    rows = task.q3()
+    print(rows)
+    print()
+    rows = task.q4()
+    print(rows)
+    print()
+    rows = task.q5()
+    print(rows)
+    print()
+    rows = task.q6()
+    print(rows)
+    print()
+    rows = task.q7()
+    print(rows)
+    print()
+    rows = task.q8()
+    print(rows)
+    print()
+    rows = task.q9()
+    print(rows)
+    print()
+    rows = task.q10()
+    print(rows)
+    print()
     rows = task.q11()
     print(rows)
     print()
-    # rows = task.q12()
-    # print(rows)
-    # print()
+    rows = task.q12()
+    print(rows)
+    print()
