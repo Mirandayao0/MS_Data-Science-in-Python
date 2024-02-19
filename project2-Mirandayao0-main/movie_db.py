@@ -145,16 +145,34 @@ class Movie_db(object):
         # self.cur.execute(query)
         # all_rows = self.cur.fetchall()
         # return all_rows
+    
     def q6(self):
-        query = '''
-         SELECT m.title, COUNT(*) AS number_of_cast_members
-            FROM Movies m
-            JOIN Cast c ON m.mid = c.mid
-            GROUP BY m.mid
-            ORDER BY number_of_cast_members DESC, m.title
-            LIMIT 10;
-
-        '''
+        threshold_query = """
+        SELECT MIN(number_of_cast_members) AS threshold
+        FROM (
+        SELECT COUNT(*) AS number_of_cast_members
+        FROM Cast
+        GROUP BY mid
+        ORDER BY COUNT(*) DESC
+        LIMIT 10
+        ) AS SubQuery;
+        """
+        self.cur.execute(threshold_query)
+    # We use fetchone() since we're only selecting one record (the 10th largest cast count)
+        threshold = self.cur.fetchone()[0]
+        print(threshold)
+      
+       
+    # Step 2: Find all movies with a number of cast members at or above the threshold
+        query = f"""
+        SELECT m.title, COUNT(c.aid) AS number_of_cast_members
+        FROM Movies m
+        JOIN Cast c ON m.mid = c.mid
+        GROUP BY m.mid
+        HAVING COUNT(c.aid) >= {threshold}
+        ORDER BY COUNT(c.aid) DESC, m.title;
+        """
+    
         self.cur.execute(query)
         all_rows = self.cur.fetchall()
         return all_rows
@@ -283,7 +301,7 @@ class Movie_db(object):
 
 if __name__ == "__main__":
     task = Movie_db("cs1656-public.db")
-    # rows = task.q0()
+    rows = task.q0()
     # print(rows)
     # print()
     # rows = task.q1()
@@ -301,9 +319,9 @@ if __name__ == "__main__":
     # rows = task.q5()
     # print(rows)
     # print()
-    # rows = task.q6()
-    # print(rows)
-    # print()
+    rows = task.q6()
+    print(rows)
+    print()
     # rows = task.q7()
     # print(rows)
     # print()
@@ -316,9 +334,9 @@ if __name__ == "__main__":
     # rows = task.q10()
     # print(rows)
     # print()
-    rows = task.q11()
-    print(rows)
-    print()
+    # rows = task.q11()
+    # print(rows)
+    # print()
     # rows = task.q12()
     # print(rows)
     # print()
